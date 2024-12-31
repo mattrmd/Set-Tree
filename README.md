@@ -31,7 +31,7 @@ It contains two main components: `SetDataset` object, that receives `records` as
 
 When configuring Set-Tree one should also configure:
 - `operations` : list of the operations to be used
-- `use_attention_set` : binary flag for activating the attention-sets mechanism 
+- `use_attention_set` : binary flag for activating the attention-sets mechanism
 - `attention_set_limit` :  the number of ancestors levels to derive attention-sets from
 - `use_attention_set_comp` : binary flag for activating the attention-sets compatibility option
 
@@ -59,9 +59,9 @@ import numpy as np
 
 set_data = settree.SetDataset(records=[np.random.randn(2,5) for _ in range(10)])
 labels = np.random.randn(10) >= 0.5
-gbest_model = settree.GradientBoostedSetTreeClassifier(learning_rate=0.1, 
+gbest_model = settree.GradientBoostedSetTreeClassifier(learning_rate=0.1,
                                                        n_estimators=10,
-                                                       criterion='mse',
+                                                       criterion='squared_error',
                                                        operations=settree.OPERATIONS,
                                                        use_attention_set=True,
                                                        use_attention_set_comp=True,
@@ -91,10 +91,3 @@ If you use Set-Tree in your work, please cite:
 
 ## License
 Set-Tree is MIT licensed, as found in the [LICENSE](https://github.com/TAU-MLwell/Set-Tree/blob/main/LICENSE) file.
-
-
-
-
-
-
-

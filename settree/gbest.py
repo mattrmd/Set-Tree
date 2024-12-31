@@ -120,7 +120,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
                  max_depth, min_impurity_decrease, min_impurity_split,
                  init, subsample, max_features, ccp_alpha,
                  random_state, alpha=0.9, verbose=0, max_leaf_nodes=None,
-                 warm_start=False, validation_fraction=0.1,
+                 warm_start=False,
                  n_iter_no_change=None, tol=1e-4):
 
         self.n_estimators = n_estimators
@@ -150,10 +150,8 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
         self.verbose = verbose
         self.max_leaf_nodes = max_leaf_nodes
         self.warm_start = warm_start
-        self.validation_fraction = validation_fraction
         self.n_iter_no_change = n_iter_no_change
         self.tol = tol
-
 
     def _fit_stage(self, i, X_set, y, raw_predictions, sample_weight, sample_mask, random_state):
         """Fit another stage of ``n_classes_`` trees to the boosting model. """
@@ -295,7 +293,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
 
     def _init_state(self):
         """Initialize model state and allocate model state data structures. """
-        #np.random.seed(self.random_state)
+        # np.random.seed(self.random_state)
         self._rng = check_random_state(self.random_state)
 
         self.init_ = self.init
@@ -303,7 +301,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
             self.init_ = self.loss_.init_estimator()
 
         self.estimators_ = np.empty((self.n_estimators, self.loss_.K),
-                                    dtype=np.object)
+                                    dtype=object)
         self.train_score_ = np.zeros((self.n_estimators,), dtype=np.float64)
         # do oob?
         if self.subsample < 1.0:
@@ -317,7 +315,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
     def _clear_state(self):
         """Clear the state of the gradient boosting model. """
         if hasattr(self, 'estimators_'):
-            self.estimators_ = np.empty((0, 0), dtype=np.object)
+            self.estimators_ = np.empty((0, 0), dtype=object)
         if hasattr(self, 'train_score_'):
             del self.train_score_
         if hasattr(self, 'oob_improvement_'):
@@ -354,7 +352,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
         """Check that the estimator is initialized, raising an error if not."""
         check_is_fitted(self)
 
-    def fit(self, X_set, y, sample_weight=None, monitor=None):
+    def fit(self, X_set, y, X_set_val = None, y_val = None, sample_weight=None, sample_weight_val=None, monitor=None):
 
         y = check_array(y, dtype=DTYPE, ensure_2d=False)
         n_samples, self.n_features_ = X_set.shape
@@ -366,20 +364,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
         y = column_or_1d(y, warn=True)
         y = self._validate_y(y, sample_weight)
 
-        if self.n_iter_no_change is not None:
-            stratify = y if is_classifier(self) else None
-            inds, inds_val = (train_test_split(range(len(X_set)),
-                                               random_state=self.random_state,
-                                               test_size=self.validation_fraction,
-                                               stratify=stratify))
-            X_set_val = X_set.get_subset(inds_val)
-            X_set = X_set.get_subset(inds)
-
-            y_val = y.take(inds_val)
-            y = y.take(inds)
-            sample_weight_val = sample_weight.take(inds_val)
-            sample_weight = sample_weight.take(inds)
-
+        if self.n_iter_no_change is not None and X_set_val is not None and y_val is not None:
             if is_classifier(self):
                 if self.n_classes_ != np.unique(y).shape[0]:
                     # We choose to error here. The problem is that the init
@@ -393,6 +378,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
                     )
         else:
             X_set_val = y_val = sample_weight_val = None
+            self.n_iter_no_change = None
 
         self._check_params()
 
@@ -442,7 +428,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
             # The requirements of _decision_function (called in two lines
             # below) are more constrained than fit. It accepts only CSR
             # matrices.
-            #X = check_array(X, dtype=DTYPE, order="C", accept_sparse='csr')
+            # X = check_array(X, dtype=DTYPE, order="C", accept_sparse='csr')
             raw_predictions = self._raw_predict(X_set)
             self._resize_state()
 
@@ -554,7 +540,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
     def _raw_predict_init(self, X_set):
         """Check input and compute raw predictions of the init estimator."""
         self._check_initialized()
-        #X = self.estimators_[0, 0]._validate_X_predict(X_set, check_input=True)
+        # X = self.estimators_[0, 0]._validate_X_predict(X_set, check_input=True)
         if X_set.shape[1] != self.n_features_:
             raise ValueError("X.shape[1] should be {0:d}, not {1:d}.".format(
                 self.n_features_, X_set.shape[1]))
@@ -591,7 +577,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
             Regression and binary classification are special cases with
             ``k == 1``, otherwise ``k==n_classes``.
         """
-        #X = check_array(X, dtype=DTYPE, order="C", accept_sparse='csr')
+        # X = check_array(X, dtype=DTYPE, order="C", accept_sparse='csr')
         raw_predictions = self._raw_predict_init(X_set)
         for i in range(self.estimators_.shape[0]):
             predict_stage(self.estimators_, i, X_set, self.learning_rate,
@@ -695,7 +681,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
         """
 
         self._check_initialized()
-        #X = self.estimators_[0, 0]._validate_X_predict(X, check_input=True)
+        # X = self.estimators_[0, 0]._validate_X_predict(X, check_input=True)
 
         # n_classes will be equal to 1 in the binary classification or the
         # regression case.
@@ -715,7 +701,7 @@ class GradientBoostedSetTreeClassifier(ClassifierMixin, BaseGradientBoostedSetTr
 
     @_deprecate_positional_args
     def __init__(self, *, loss='deviance', learning_rate=0.1, n_estimators=100,
-                 subsample=1.0, criterion='mse',
+                 subsample=1.0, criterion='squared_error',
                  splitter='sklearn', operations=OPERATIONS, use_attention_set=True, use_attention_set_comp=True,
                  attention_set_limit=1, save_path=None,
                  min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.,
@@ -723,7 +709,7 @@ class GradientBoostedSetTreeClassifier(ClassifierMixin, BaseGradientBoostedSetTr
                  min_impurity_split=None, init=None,
                  random_state=None, max_features=None, verbose=0,
                  max_leaf_nodes=None, warm_start=False,
-                 validation_fraction=0.1, n_iter_no_change=None, tol=1e-4,
+                 n_iter_no_change=None, tol=1e-4,
                  ccp_alpha=0.0):
 
         super().__init__(
@@ -739,7 +725,7 @@ class GradientBoostedSetTreeClassifier(ClassifierMixin, BaseGradientBoostedSetTr
             max_leaf_nodes=max_leaf_nodes,
             min_impurity_decrease=min_impurity_decrease,
             min_impurity_split=min_impurity_split,
-            warm_start=warm_start, validation_fraction=validation_fraction,
+            warm_start=warm_start,
             n_iter_no_change=n_iter_no_change, tol=tol, ccp_alpha=ccp_alpha)
 
     def _validate_y(self, y, sample_weight):
@@ -914,14 +900,14 @@ class GradientBoostedSetTreeRegressor(RegressorMixin, BaseGradientBoostedSetTree
 
     @_deprecate_positional_args
     def __init__(self, *, loss='ls', learning_rate=0.1, n_estimators=100,
-                 subsample=1.0, criterion='mse', splitter='sklearn',
+                 subsample=1.0, criterion='squared_error', splitter='sklearn',
                  operations=OPERATIONS, use_attention_set=True, use_attention_set_comp=True,
                  attention_set_limit=1, save_path=None,
                  min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.,
                  max_depth=3, min_impurity_decrease=0.,
                  min_impurity_split=None, init=None, random_state=None,
                  max_features=None, alpha=0.9, verbose=0, max_leaf_nodes=None,
-                 warm_start=False, validation_fraction=0.1,
+                 warm_start=False,
                  n_iter_no_change=None, tol=1e-4, ccp_alpha=0.0):
         super().__init__(
             loss=loss, learning_rate=learning_rate, n_estimators=n_estimators, criterion=criterion, splitter=splitter,
@@ -936,7 +922,6 @@ class GradientBoostedSetTreeRegressor(RegressorMixin, BaseGradientBoostedSetTree
             min_impurity_split=min_impurity_split,
             random_state=random_state, alpha=alpha, verbose=verbose,
             max_leaf_nodes=max_leaf_nodes, warm_start=warm_start,
-            validation_fraction=validation_fraction,
             n_iter_no_change=n_iter_no_change, tol=tol, ccp_alpha=ccp_alpha)
 
     def predict(self, X_set):

@@ -17,7 +17,6 @@ from sklearn.tree._tree import DTYPE, DOUBLE
 from sklearn.utils import check_random_state, check_array, compute_sample_weight
 from sklearn.exceptions import DataConversionWarning
 from sklearn.ensemble._base import BaseEnsemble, _partition_estimators
-from sklearn.utils.fixes import _joblib_parallel_args
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted, _check_sample_weight
 from sklearn.utils.validation import _deprecate_positional_args
@@ -184,7 +183,7 @@ class BaseForest(MultiOutputMixin, BaseEnsemble, metaclass=ABCMeta):
         """
         #X = self._validate_X_predict(X)
         results = Parallel(n_jobs=self.n_jobs, verbose=self.verbose,
-                           **_joblib_parallel_args(prefer="threads"))(
+                           prefer="threads")(
             delayed(tree.apply)(X_set)
             for tree in self.estimators_)
 
@@ -214,7 +213,7 @@ class BaseForest(MultiOutputMixin, BaseEnsemble, metaclass=ABCMeta):
         """
         #X = self._validate_X_predict(X)
         indicators = Parallel(n_jobs=self.n_jobs, verbose=self.verbose,
-                              **_joblib_parallel_args(prefer='threads'))(
+                              backend="threading")(
             delayed(tree.decision_path)(X_set)
             for tree in self.estimators_)
 
@@ -311,7 +310,7 @@ class BaseForest(MultiOutputMixin, BaseEnsemble, metaclass=ABCMeta):
             # parallel_backend contexts set at a higher level,
             # since correctness does not rely on using threads.
             trees = Parallel(n_jobs=self.n_jobs, verbose=self.verbose,
-                             **_joblib_parallel_args(prefer='threads'))(
+                             backend="threading")(
                 delayed(_parallel_build_trees)(
                     t, self, X_set, y, sample_weight, i, len(trees),
                     verbose=self.verbose, class_weight=self.class_weight,
@@ -368,7 +367,7 @@ class BaseForest(MultiOutputMixin, BaseEnsemble, metaclass=ABCMeta):
         check_is_fitted(self)
 
         all_importances = Parallel(n_jobs=self.n_jobs,
-                                   **_joblib_parallel_args(prefer='threads'))(
+                                   backend="threading")(
             delayed(getattr)(tree, 'feature_importances_')
             for tree in self.estimators_ if tree.tree_.node_count > 1)
 
@@ -596,7 +595,7 @@ class SetForestClassifier(ClassifierMixin, BaseForest, metaclass=ABCMeta):
                      for j in np.atleast_1d(self.n_classes_)]
         lock = threading.Lock()
         Parallel(n_jobs=n_jobs, verbose=self.verbose,
-                 **_joblib_parallel_args(require="sharedmem"))(
+                 backend="threading")(
             delayed(_accumulate_prediction)(e.predict_proba, X_set, all_proba,
                                             lock)
             for e in self.estimators_)
@@ -703,7 +702,7 @@ class SetForestRegressor(RegressorMixin, BaseForest, metaclass=ABCMeta):
         # Parallel loop
         lock = threading.Lock()
         Parallel(n_jobs=n_jobs, verbose=self.verbose,
-                 **_joblib_parallel_args(require="sharedmem"))(
+                 backend="threading")(
             delayed(_accumulate_prediction)(e.predict, X_set, [y_hat], lock)
             for e in self.estimators_)
 

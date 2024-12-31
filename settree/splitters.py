@@ -354,7 +354,7 @@ class SklearnSetSplitter(ThirdPartySplitter):
                                          max_features=self.max_features,
                                          random_state=rand_state).fit(X, y)
         else:
-            clf = DecisionTreeRegressor(criterion='mse',
+            clf = DecisionTreeRegressor(criterion='squared_error',
                                         splitter='best',
                                         max_depth=1,
                                         min_samples_split=2,
@@ -381,4 +381,4 @@ class SklearnSetSplitter(ThirdPartySplitter):
 
 
 SPLITTERS = {'sklearn': SklearnSetSplitter}
-CRITERIONS = {'gini': gini, 'entropy': entropy, 'mse': mse}
+CRITERIONS = {'gini': gini, 'entropy': entropy, 'squared_error': mse}
