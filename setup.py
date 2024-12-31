@@ -25,7 +25,7 @@ setup(
     url='https://github.com/TAU-MLwell/Set-Tree',
     download_url='https://github.com/TAU-MLwell/Set-Tree/archive/refs/tags/0.2.1.tar.gz',
 
-    install_requires=['numpy>=1.19.2', 'scikit-learn>= 0.23.1', 'scipy>=pi1.5.2'],
+    install_requires=['numpy>=1.19.2', 'scikit-learn>= 0.23.1', 'scipy>=1.5.2'],
     classifiers=["Programming Language :: Python :: 3",
                  "License :: OSI Approved :: MIT License",
                  "Operating System :: OS Independent"],
