@@ -156,7 +156,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
     def _fit_stage(self, i, X_set, y, raw_predictions, sample_weight, sample_mask, random_state):
         """Fit another stage of ``n_classes_`` trees to the boosting model. """
 
-        assert sample_mask.dtype == np.bool
+        assert sample_mask.dtype == bool
         loss = self.loss_
         original_y = y
 
@@ -459,7 +459,7 @@ class BaseGradientBoostedSetTree(BaseEnsemble, metaclass=ABCMeta):
         n_samples = X_set.shape[0]
 
         do_oob = self.subsample < 1.0
-        sample_mask = np.ones((n_samples,), dtype=np.bool)
+        sample_mask = np.ones((n_samples,), dtype=bool)
         n_inbag = max(1, int(self.subsample * n_samples))
         loss_ = self.loss_
 

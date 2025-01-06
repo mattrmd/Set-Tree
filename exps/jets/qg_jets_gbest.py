@@ -62,7 +62,7 @@ if __name__ == '__main__':
                               'max_depth': 5,
                               'max_features': None,
                               'subsample': 0.5,
-                              'criterion': 'mse',
+                              'criterion': 'squared_error',
                               'early_stopping_rounds': 5,
                               'random_state': args.seed}
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
                       'verbose': 3}
 
         sklearn_params = {'n_estimators': shared_gbdt_params['n_estimators'],
-                          'criterion': 'mse',
+                          'criterion': 'squared_error',
                           'learning_rate': shared_gbdt_params['learning_rate'],
                           'max_depth': shared_gbdt_params['max_depth'],
                           'max_features': shared_gbdt_params['max_features'],
@@ -129,4 +129,3 @@ if __name__ == '__main__':
             pkl_filename = os.path.join(log_dir, '{}_model.pkl'.format(args.exp_name))
             with open(pkl_filename, 'wb') as file:
                 pickle.dump(set_gbtd, file)
-

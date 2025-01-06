@@ -83,7 +83,7 @@ if __name__ == '__main__':
                           'max_depth': 8,
                           'max_features': None,
                           'subsample': 0.5,
-                          'criterion': 'mse',
+                          'criterion': 'squared_error',
                           'early_stopping_rounds': 5,
                           'random_state': 42}
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
                   'verbose': 3}
 
     sklearn_params = {'n_estimators': shared_gbdt_params['n_estimators'],
-                      'criterion': 'mse',
+                      'criterion': 'squared_error',
                       'learning_rate': shared_gbdt_params['learning_rate'],
                       'max_depth': shared_gbdt_params['max_depth'],
                       'max_features': shared_gbdt_params['max_features'],

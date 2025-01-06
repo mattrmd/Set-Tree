@@ -61,7 +61,7 @@ if __name__ == '__main__':
                               'max_depth': 8,
                               'max_features': None,
                               'subsample': 0.5,
-                              'criterion': 'mse',
+                              'criterion': 'squared_error',
                               #'early_stopping_rounds': 5,
                               'random_state': 42}
 

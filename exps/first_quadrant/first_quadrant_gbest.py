@@ -64,7 +64,7 @@ if __name__ == '__main__':
                       'verbose': 3}
 
         xgboost_params = {'n_estimators': params['n_estimators'],
-                          'criterion': 'mse',
+                          'criterion': 'squared_error',
                           'learning_rate': params['learning_rate'],
                           'max_depth': params['max_depth'],
                           'max_features': params['max_features'],

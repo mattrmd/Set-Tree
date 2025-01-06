@@ -28,7 +28,7 @@ import numpy as np
 # labels = np.random.randn(1000) >= 0.5
 # gbest_model = settree.GradientBoostedSetTreeClassifier(learning_rate=0.1,
 #                                                        n_estimators=3,
-#                                                        criterion='mse',
+#                                                        criterion='squared_error',
 #                                                        operations=settree.OPERATIONS,
 #                                                        use_attention_set=True,
 #                                                        use_attention_set_comp=True,
@@ -46,13 +46,15 @@ for sn, i in enumerate(records):
     mod_records.append(i)
 set_data = settree.SetDataset(records=mod_records)
 labels = np.array([0] * 50 + [1] * 50)
-gbest_model = settree.GradientBoostedSetTreeClassifier(learning_rate=0.1,
-                                                       n_estimators=30,
-                                                       criterion='mse',
-                                                       operations=settree.OPERATIONS,
-                                                       use_attention_set=True,
-                                                       use_attention_set_comp=True,
-                                                       attention_set_limit=5,
-                                                       max_depth=10)
+gbest_model = settree.GradientBoostedSetTreeClassifier(
+    learning_rate=0.1,
+    n_estimators=30,
+    criterion="squared_error",
+    operations=settree.OPERATIONS,
+    use_attention_set=True,
+    use_attention_set_comp=True,
+    attention_set_limit=5,
+    max_depth=10,
+)
 gbest_model.fit(set_data, labels)
 print(gbest_model.feature_importances_)

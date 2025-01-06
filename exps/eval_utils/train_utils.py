@@ -252,7 +252,7 @@ def train_and_predict_set_gbdt(params, ds_train, train_y, ds_test, test_y,
     else:
         gbdt = GradientBoostedSetTreeRegressor(**params)
         eval_met = mse
-        eval_met_name = 'mse'
+        eval_met_name = 'squared_error'
 
     timer = Timer()
 
@@ -373,7 +373,7 @@ def train_and_predict_set_tree(params, ds_train, train_y, ds_test, test_y,
         eval_met_name = 'acc'
     else:
         eval_met = mse
-        eval_met_name = 'mse'
+        eval_met_name = 'squared_error'
 
     timer = Timer()
     tree.fit(ds_train, train_y)
@@ -435,7 +435,7 @@ def train_and_predict_xgboost(params,
     else:
         gbdt = xgb.XGBRegressor(**params)
         eval_met = mse
-        eval_met_name = 'mse'
+        eval_met_name = 'squared_error'
 
     if verbose:
         logging.info('Params: {}'.format(params))
@@ -499,7 +499,7 @@ def train_and_predict_sklearn_gbtd(params,
     else:
         gbdt = GradientBoostingRegressor(**params)
         eval_met = mse
-        eval_met_name = 'mse'
+        eval_met_name = 'squared_error'
 
     if verbose:
         logging.info('Params: {}'.format(params))
@@ -568,7 +568,7 @@ def train_and_predict_sklearn_dt(params,
     else:
         dt = DecisionTreeRegressor(**params)
         eval_met = mse
-        eval_met_name = 'mse'
+        eval_met_name = 'squared_error'
 
     if verbose:
         logging.info('Params: {}'.format(params))
@@ -610,4 +610,3 @@ def train_and_predict_sklearn_dt(params,
         return dt, train_met, test_met
     else:
         return dt
-
